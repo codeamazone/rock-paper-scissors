@@ -4,7 +4,7 @@
 
 A simple Python game of rock-paper-scissors with customizable options
 
-![screenshot](img/rps_game.png)
+![screenshot](img\rps_game.PNG)
 
 # How to Play
 
