@@ -1,68 +1,73 @@
 import random
 
-default_options = ['rock', 'paper', 'scissors']
-result = ''
-counter = 0
+
+class RockPaperScissors:
+    options = ['rock', 'paper', 'scissors']
+    outcome = ''
+    counter = 0
+
+    def __init__(self, player):
+        self.player = player
+
+    def start(self):
+        print(f'Hello, {self.player}')
+        highscores = open('rating.txt', 'r')
+        names = []
+        for line in highscores:
+            names.append(line.split())
+        find_player = [name for name in names if name[0] == self.player]
+        if len(find_player) != 0:
+            self.counter = int(find_player[0][1])
+        highscores.close()
+
+    def set_options(self):
+        custom_options = input('Enter your custom options, separated by a comma and a space.\n'
+                               'If you want to play with the default setting, just press "Enter".')
+        if custom_options != '':
+            self.options = custom_options.split(', ')
+
+    def score(self, score):
+        if 'draw' in score:
+            self.counter += 50
+        elif 'Well done' in score:
+            self.counter += 100
+
+    def determine_winner(self, choice1, choice2):
+        possible_combinations = []
+        possible_combinations.extend(self.options[self.options.index(choice1) + 1:])
+        possible_combinations.extend(self.options[0:self.options.index(choice1)])
+        divisor = len(possible_combinations) / 2
+        choice1_lose = possible_combinations[0:int(divisor)]
+        choice1_win = possible_combinations[int(divisor):]
+        if choice1 == choice2:
+            self.outcome = f'There is a draw ({choice1})'
+        if choice2 in choice1_lose:
+            self.outcome = f'Well done. Computer chose {choice1} and failed'
+        elif choice2 in choice1_win:
+            self.outcome = f'Sorry, but computer chose {choice1}'
+
+    def play_game(self):
+        self.start()
+        self.set_options()
+        print("OK, let's start.")
+        while True:
+            computer_choice = random.choice(self.options)
+            user_choice = input('Enter your choice.\n'
+                                'To see your rating, enter "rating", to end the game, enter "exit": ')
+            if user_choice == 'exit':
+                print('Bye!')
+                break
+            elif user_choice == 'rating':
+                print(f'Your rating: {self.counter}')
+            elif user_choice not in self.options:
+                print('Invalid input')
+            else:
+                self.determine_winner(computer_choice, user_choice)
+                print(self.outcome)
+                self.score(self.outcome)
 
 
-def start(user):
-    global counter
-    print(f'Hello, {user}')
-    highscores = open('rating.txt', 'r')
-    names = []
-    for line in highscores:
-        names.append(line.split())
-    find_username = [name for name in names if name[0] == user]
-    if len(find_username) != 0:
-        counter = int(find_username[0][1])
-    highscores.close()
-
-
-def points(score):
-    global counter
-    if 'draw' in score:
-        counter += 50
-    elif 'Well done' in score:
-        counter += 100
-
-
-def find_winner(move1, move2):
-    global options
-    global result
-    possible_combinations = []
-    possible_combinations.extend(options[options.index(move1) + 1:])
-    possible_combinations.extend(options[0:options.index(move1)])
-    divisor = len(possible_combinations) / 2
-    move1_lose = possible_combinations[0:int(divisor)]
-    move1_win = possible_combinations[int(divisor):]
-    if move1 == move2:
-        result = f'There is a draw ({move1})'
-    if move2 in move1_lose:
-        result = f'Well done. Computer chose {move1} and failed'
-    elif move2 in move1_win:
-        result = f'Sorry, but computer chose {move1}'
-
-
-username = input('Enter your name: ')
-start(username)
-user_options = input()
-if user_options == '':
-    options = default_options
-else:
-    options = user_options.split(',')
-print('Okay, let\'s start')
-
-while True:
-    computer_choice = random.choice(options)
-    user_choice = input()
-    if user_choice == '!exit':
-        print('Bye!')
-        break
-    elif user_choice == '!rating':
-        print(f'Your rating: {counter}')
-    elif user_choice not in options:
-        print('Invalid input')
-    else:
-        find_winner(computer_choice, user_choice)
-        print(result)
-        points(result)
+if __name__ == '__main__':
+    player_name = input('Enter your name: ')
+    game = RockPaperScissors(player_name)
+    game.play_game()
