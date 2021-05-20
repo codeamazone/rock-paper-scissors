@@ -8,17 +8,19 @@ A simple Python game of rock-paper-scissors with customizable options
 
 # How to Play
 
-- install Python and start the game in your console
+- Make sure you have python installed
+- Fork/clone the repository and open the project directory in your console.
+- Start the game by entgering the following command
 
 ```
 python game.py
 ```
 
-- After entering your name, press Enter to play the default version or enter as many own options as you wish, separated by a comma (without spaces) and then Enter
+- After entering your name, you will be asked for your custom options. Enter them, separated by a comma and a space. If you woud like to play with the default options, just press "Enter" instead.
 
 ## Possible commands:
 
-Pick one of the defined options
+### Pick one of the defined options
 
 ```
 rock
@@ -27,13 +29,13 @@ rock
 ### Get your current score
 
 ```
-!rating
+rating
 ```
 
 ### Exit the game
 
 ```
-!exit
+exit
 ```
 
 You gain 50 points if there is a draw and 100 points if you win.
