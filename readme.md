@@ -8,9 +8,9 @@ A simple Python game of rock-paper-scissors with customizable options
 
 # How to Play
 
-- Make sure you have python installed
+- Make sure you have Python installed
 - Fork/clone the repository and open the project directory in your console.
-- Start the game by entgering the following command
+- Start the game by entering the following command
 
 ```
 python game.py
