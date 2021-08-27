@@ -1,5 +1,5 @@
 import random
-
+from pathlib import Path
 
 class RockPaperScissors:
     options = ('rock', 'paper', 'scissors')
@@ -11,7 +11,8 @@ class RockPaperScissors:
 
     def start(self):
         print(f'Hello, {self.player}')
-        highscores = open('rating.txt', 'r')
+        p = Path(__file__).parent / 'rating.txt'
+        highscores = open(p, 'r')
         names = []
         for line in highscores:
             names.append(line.split())
@@ -21,6 +22,13 @@ class RockPaperScissors:
         highscores.close()
 
     def set_options(self):
+        """TODO: implement validation of user input to prevent:
+                    - even number of options
+                    - repeating the same option(s)
+                    - just one option
+                    - too many options
+                 option to enter whitespace separated options"""
+
         custom_options = input('\nEnter an odd number of custom options, separated by commas.\n'
                                'If you want to play with the default setting, just press "Enter":\nyour options: ')
         if custom_options != '':
