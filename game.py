@@ -1,6 +1,7 @@
 import random
 from pathlib import Path
 
+
 class RockPaperScissors:
     options = ('rock', 'paper', 'scissors')
 
@@ -8,11 +9,11 @@ class RockPaperScissors:
         self.player = player
         self.score = 0
         self.outcome = ''
+        self.rating_path = Path(__file__).parent / 'rating.txt'
 
     def start(self):
         print(f'Hello, {self.player}')
-        p = Path(__file__).parent / 'rating.txt'
-        highscores = open(p, 'r')
+        highscores = open(self.rating_path, 'r')
         names = []
         for line in highscores:
             names.append(line.split())
@@ -53,12 +54,17 @@ class RockPaperScissors:
         elif choice2 in choice1_win:
             self.outcome = f'Sorry, but computer chose {choice1}'
 
+    def computer_move(self):
+        move = random.choice(self.options)
+        return move
+
     def play_game(self):
         self.start()
         self.set_options()
         print("OK, let's start.")
         while True:
-            computer_choice = random.choice(self.options)
+            # computer_choice = random.choice(self.options)
+            computer_choice = self.computer_move()
             user_choice = input('\nEnter your choice.\n'
                                 'To see your rating, enter "rating", to end the game, enter "exit":\nyour choice: ')
             if user_choice == 'exit':

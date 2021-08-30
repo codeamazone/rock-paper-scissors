@@ -1,7 +1,5 @@
 import pytest
-import game
 from game import RockPaperScissors
-from pathlib import Path
 
 
 @pytest.fixture(scope='class', name='setup1')
@@ -50,29 +48,16 @@ class TestStartAssignmentPlayerInRating:
         assert setup2.score == 350
 
 
-@pytest.mark.xfail(reason='patched dir/file seems to not be used, needs to be fixed')
-def test_start_reads_from_file(tmp_path, monkeypatch, setup2, capsys):
+def test_start_reads_from_file(tmp_path, monkeypatch, setup2):
     test_ratings = 'Pete 150\nTim 800'
     d = tmp_path / 'testdir'
     d.mkdir()
     testfile = d / 'rating.txt'
     testfile.write_text(test_ratings)
     assert testfile.read_text() == 'Pete 150\nTim 800'
-    monkeypatch.setenv(str(Path(__file__).parent), str(d))
+    monkeypatch.setattr(setup2, "rating_path", testfile)
     setup2.start()
     assert setup2.score == 800
-
-    # testdir = tmpdir.mkdir('home')
-    # test_file = testdir.join('rating.txt')
-    # test_file.write('Pete 150\nTim 800')
-    # print(game.os.path)
-    # monkeypatch.setattr(game.os.path, 'expanduser',
-    #                      lambda x: x.replace('~', str(testdir)))
-    # assert test_file.read() == 'Pete 150\nTim 800'
-    # setup2.start()
-    # assert setup2.score == 800
-
-
 
 
 @pytest.fixture(scope='module', params=['myname', 'Tim'])
@@ -82,6 +67,7 @@ def setup(request):
 
 class TestSetOptions:
     """Test if options are set correctly by set_options method"""
+
     def test_no_input_sets_default_options(self, monkeypatch, setup):
         # Simulate the user entering nothing in the terminal:
         monkeypatch.setattr('builtins.input', lambda _: '')
@@ -198,5 +184,109 @@ class TestDetermineWinner:
         assert setup1.outcome == 'There is a draw (spider)'
 
 
-class TestPlayGame:
+def mock_start():
     pass
+
+
+def mock_set_options():
+    pass
+
+
+def mock_random_move_dragon():
+    return 'dragon'
+
+
+def mock_random_move_shrimp():
+    return 'shrimp'
+
+
+def mock_random_move_spider():
+    return 'spider'
+
+
+@pytest.mark.usefixtures('all_setup')
+class TestPlayGame:
+    def test_play_game_output_with_exit(self, setup1, monkeypatch, capsys):
+        monkeypatch.setattr(setup1, 'start', mock_start)
+        monkeypatch.setattr(setup1, 'set_options', mock_set_options)
+        assert setup1.player == 'myname'
+        assert setup1.options == ['dragon', 'spider', 'shrimp']
+        monkeypatch.setattr('builtins.input', lambda _: 'exit')
+        setup1.play_game()
+        captured1 = capsys.readouterr()
+        assert captured1.out == 'OK, let\'s start.\nBye!\n'
+        assert captured1.err == ''
+
+    def test_play_game_output_with_rating(self, setup1, monkeypatch, capsys):
+        monkeypatch.setattr(setup1, 'start', mock_start)
+        monkeypatch.setattr(setup1, 'set_options', mock_set_options)
+        user_input1 = 'rating'
+        user_input2 = 'exit'
+        answers = iter([user_input1, user_input2])
+        monkeypatch.setattr('builtins.input', lambda name: next(answers))
+        setup1.play_game()
+        captured = capsys.readouterr()
+        assert captured.out == 'OK, let\'s start.\nYour rating: 0\nBye!\n'
+        assert captured.err == ''
+
+    def test_play_game_output_with_invalid_input(self, setup1, monkeypatch, capsys):
+        monkeypatch.setattr(setup1, 'start', mock_start)
+        monkeypatch.setattr(setup1, 'set_options', mock_set_options)
+        user_input1 = 'hello'
+        user_input2 = 'exit'
+        answers = iter([user_input1, user_input2])
+        monkeypatch.setattr('builtins.input', lambda name: next(answers))
+        setup1.play_game()
+        captured = capsys.readouterr()
+        assert captured.out == 'OK, let\'s start.\nInvalid input\nBye!\n'
+        assert captured.err == ''
+
+    def test_play_game_output_with_option(self, setup1, monkeypatch, capsys):
+        monkeypatch.setattr(setup1, 'start', mock_start)
+        monkeypatch.setattr(setup1, 'set_options', mock_set_options)
+        user_input1 = 'shrimp'
+        user_input2 = 'exit'
+        answers = iter([user_input1, user_input2])
+        monkeypatch.setattr('builtins.input', lambda name: next(answers))
+        setup1.play_game()
+        with capsys.disabled():
+            print(capsys.readouterr().out)
+
+    def test_play_game_computer_wins(self, setup1, monkeypatch, capsys):
+        monkeypatch.setattr(setup1, 'start', mock_start)
+        monkeypatch.setattr(setup1, 'set_options', mock_set_options)
+        monkeypatch.setattr(setup1, 'computer_move', mock_random_move_dragon)
+        user_input1 = 'shrimp'
+        user_input2 = 'exit'
+        answers = iter([user_input1, user_input2])
+        monkeypatch.setattr('builtins.input', lambda name: next(answers))
+        setup1.play_game()
+        captured = capsys.readouterr()
+        assert captured.out == 'OK, let\'s start.\nSorry, but computer chose dragon\nBye!\n'
+        assert captured.err == ''
+
+    def test_play_game_computer_loses(self, setup1, monkeypatch, capsys):
+        monkeypatch.setattr(setup1, 'start', mock_start)
+        monkeypatch.setattr(setup1, 'set_options', mock_set_options)
+        monkeypatch.setattr(setup1, 'computer_move', mock_random_move_spider)
+        user_input1 = 'shrimp'
+        user_input2 = 'exit'
+        answers = iter([user_input1, user_input2])
+        monkeypatch.setattr('builtins.input', lambda name: next(answers))
+        setup1.play_game()
+        captured = capsys.readouterr()
+        assert captured.out == 'OK, let\'s start.\nWell done. Computer chose spider and failed\nBye!\n'
+        assert captured.err == ''
+
+    def test_play_game_draw(self, setup1, monkeypatch, capsys):
+        monkeypatch.setattr(setup1, 'start', mock_start)
+        monkeypatch.setattr(setup1, 'set_options', mock_set_options)
+        monkeypatch.setattr(setup1, 'computer_move', mock_random_move_shrimp)
+        user_input1 = 'shrimp'
+        user_input2 = 'exit'
+        answers = iter([user_input1, user_input2])
+        monkeypatch.setattr('builtins.input', lambda name: next(answers))
+        setup1.play_game()
+        captured = capsys.readouterr()
+        assert captured.out == 'OK, let\'s start.\nThere is a draw (shrimp)\nBye!\n'
+        assert captured.err == ''
