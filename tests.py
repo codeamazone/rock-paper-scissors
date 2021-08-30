@@ -264,6 +264,7 @@ class TestPlayGame:
         captured = capsys.readouterr()
         assert captured.out == 'OK, let\'s start.\nSorry, but computer chose dragon\nBye!\n'
         assert captured.err == ''
+        assert setup1.outcome == 'Sorry, but computer chose dragon'
 
     def test_play_game_computer_loses(self, setup1, monkeypatch, capsys):
         monkeypatch.setattr(setup1, 'start', mock_start)
@@ -277,6 +278,7 @@ class TestPlayGame:
         captured = capsys.readouterr()
         assert captured.out == 'OK, let\'s start.\nWell done. Computer chose spider and failed\nBye!\n'
         assert captured.err == ''
+        assert setup1.outcome == 'Well done. Computer chose spider and failed'
 
     def test_play_game_draw(self, setup1, monkeypatch, capsys):
         monkeypatch.setattr(setup1, 'start', mock_start)
@@ -290,3 +292,4 @@ class TestPlayGame:
         captured = capsys.readouterr()
         assert captured.out == 'OK, let\'s start.\nThere is a draw (shrimp)\nBye!\n'
         assert captured.err == ''
+        assert setup1.outcome == 'There is a draw (shrimp)'
